@@ -1061,7 +1061,7 @@
   </div>
 
   <script>
-// Listado de diapositivas alineado exactamente con tu estructura HTML original
+  // Listado de diapositivas con sus etiquetas correctas
     const SLIDES_DATA = [
       { id: "slide-0", label: "Introducción", color: "var(--blue)" },
       { id: "slide-1", label: "Definiciones", color: "var(--blue)" },
@@ -1090,7 +1090,11 @@
           const pill = document.createElement("button");
           pill.className = `pill-btn ${index === 0 ? 'active' : ''}`;
           pill.id = `pill-${slide.id}`;
-          pill.innerText = `${String(index).padStart(2, '0')}. ${slide.label}`;
+          
+          // AJUSTE DE ENUMERACIÓN: slide-0 es 00, slide-1 (Definiciones) es 01, slide-2 es 02...
+          const slideNumber = index === 0 ? "00" : String(index).padStart(2, '0');
+          pill.innerText = `${slideNumber}. ${slide.label}`;
+          
           pill.onclick = () => goToSlide(index);
           pillsContainer.appendChild(pill);
         }
@@ -1154,18 +1158,14 @@
         labelCenterEl.innerText = targetSlide.label;
       }
 
-      // 4. Controlar habilitación y estilos de los botones Siguiente/Anterior
+      // 4. Controlar habilitación de los botones Siguiente/Anterior
       const prevBtn = document.getElementById("btn-prev");
       const nextBtn = document.getElementById("btn-next");
 
-      if (prevBtn) {
-        prevBtn.disabled = (index === 0);
-      }
-      if (nextBtn) {
-        nextBtn.disabled = (index === SLIDES_DATA.length - 1);
-      }
+      if (prevBtn) prevBtn.disabled = (index === 0);
+      if (nextBtn) nextBtn.disabled = (index === SLIDES_DATA.length - 1);
 
-      // Hacer scroll automático suave en el menú superior si queda oculto de la pantalla
+      // Hacer scroll automático suave en el menú superior si queda oculto
       const activePill = document.getElementById(`pill-${targetSlide.id}`);
       if (activePill) {
         activePill.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
