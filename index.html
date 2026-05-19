@@ -1061,77 +1061,108 @@
   </div>
 
   <script>
+    // Datos de las diapositivas (Llena este array con tu contenido)
     const SLIDES_DATA = [
-      { id: "slide-0", label: "Inicio", color: "#38BDF8" },
-      { id: "slide-1", label: "Definiciones", color: "#38BDF8" },
-      { id: "slide-2", label: "Taxonomía", color: "#A78BFA" },
-      { id: "slide-3", label: "Métricas", color: "#F59E0B" },
-      { id: "slide-4", label: "Roles", color: "#34D399" },
-      { id: "slide-5", label: "Glosario", color: "#EF4444" },
-      { id: "slide-6", label: "Conclusión", color: "#34D399" }
+      {
+        id: "slide-0",
+        title: "Ingeniería del Mantenimiento de Software",
+        subtitle: "Conceptos Fundamentales e Introducción",
+        label: "Introducción",
+        color: "var(--blue)",
+        content: `
+          <div class="card-grid">
+            <div class="card">
+              <h3>¿Qué es el Mantenimiento de Software?</h3>
+              <p>Es la modificación de un producto de software después de la entrega para corregir errores, mejorar el rendimiento u otros atributos.</p>
+            </div>
+            <div class="card">
+              <h3>Importancia</h3>
+              <p>Representa una de las fases más costosas y críticas del ciclo de vida del software, garantizando que el sistema siga siendo útil.</p>
+            </div>
+          </div>
+        `
+      },
+      {
+        id: "slide-1",
+        title: "Tipos de Mantenimiento",
+        subtitle: "Según la norma ISO/IEC 14764",
+        label: "Tipos",
+        color: "var(--violet)",
+        content: `
+          <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+            <div class="card" style="border-top: 4px solid var(--red);">
+              <h3>Correctivo</h3>
+              <p>Reparar fallas detectadas por los usuarios.</p>
+            </div>
+            <div class="card" style="border-top: 4px solid var(--green);">
+              <h3>Adaptativo</h3>
+              <p>Modificar el software para que funcione en nuevos entornos.</p>
+            </div>
+            <div class="card" style="border-top: 4px solid var(--amber);">
+              <h3>Perfectivo</h3>
+              <p>Añadir nuevas funciones o mejorar la eficiencia.</p>
+            </div>
+            <div class="card" style="border-top: 4px solid var(--blue);">
+              <h3>Preventivo</h3>
+              <p>Prevenir problemas antes de que ocurran (Refactorización).</p>
+            </div>
+          </div>
+        `
+      }
     ];
 
     let currentSlideIndex = 0;
 
-    // Renderizar píldoras superiores y puntos inferiores
-    function initNavigationUI() {
-      const pillsContainer = document.getElementById("pills-container");
-      const dotsContainer = document.getElementById("dots-container");
+    function renderSlides() {
+      const container = document.getElementById("slides-container");
+      container.innerHTML = ""; // Limpiar contenedor
 
-      SLIDES_DATA.forEach((slide, i) => {
-        // Píldoras superiores
-        const pill = document.createElement("button");
-        pill.className = "pill-btn";
-        pill.innerText = slide.label;
-        pill.id = `pill-${i}`;
-        pill.onclick = () => goToSlide(i);
-        pillsContainer.appendChild(pill);
+      if (SLIDES_DATA.length === 0) {
+        container.innerHTML = "<p style='color:var(--red); text-align:center;'>No hay diapositivas cargadas en SLIDES_DATA.</p>";
+        return;
+      }
 
-        // Puntos inferiores
-        const dot = document.createElement("button");
-        dot.className = "dot-btn";
-        dot.title = slide.label;
-        dot.id = `dot-${i}`;
-        dot.onclick = () => goToSlide(i);
-        dotsContainer.appendChild(dot);
+      SLIDES_DATA.forEach((slide, index) => {
+        const slideEl = document.createElement("div");
+        slideEl.id = slide.id;
+        slideEl.className = `slide-content ${index === 0 ? 'active' : ''}`;
+        
+        slideEl.innerHTML = `
+          <div class="slide-header">
+            <span class="slide-badge" style="background: ${slide.color}20; color: ${slide.color}; border: 1px solid ${slide.color}40;">
+              ${slide.label}
+            </span>
+            <h1 class="slide-title">${slide.title}</h1>
+            <p class="slide-subtitle">${slide.subtitle}</p>
+          </div>
+          <div class="slide-body">
+            ${slide.content}
+          </div>
+        `;
+        
+        container.appendChild(slideEl);
       });
+
+      // Inicializar el estado de los controles superiores/inferiores
+      goToSlide(0);
     }
 
-    // Cambiar de diapositiva de forma reactiva
     function goToSlide(index) {
       if (index < 0 || index >= SLIDES_DATA.length) return;
+
+      // Desactivar diapositiva anterior
+      const currentSlide = document.querySelector(".slide-content.active");
+      if (currentSlide) currentSlide.classList.remove("active");
+
+      // Activar nueva diapositiva
       currentSlideIndex = index;
       const targetSlide = SLIDES_DATA[index];
+      const nextSlideEl = document.getElementById(targetSlide.id);
+      if (nextSlideEl) nextSlideEl.classList.add("active");
 
-      // Sincronizar propiedad css dinámicamente
-      document.documentElement.style.setProperty('--accent', targetSlide.color);
-
-      SLIDES_DATA.forEach((slide, i) => {
-        const slideEl = document.getElementById(slide.id);
-        const pillEl = document.getElementById(`pill-${i}`);
-        const dotEl = document.getElementById(`dot-${i}`);
-
-        if (i === index) {
-          slideEl.classList.add("active");
-          pillEl.classList.add("active");
-          pillEl.style.border = `1px solid ${targetSlide.color}`;
-          pillEl.style.background = `${targetSlide.color}20`;
-          
-          dotEl.style.width = "24px";
-          dotEl.style.backgroundColor = targetSlide.color;
-        } else {
-          slideEl.classList.remove("active");
-          pillEl.classList.remove("active");
-          pillEl.style.border = `1px solid transparent`;
-          pillEl.style.background = `transparent`;
-          
-          dotEl.style.width = "8px";
-          dotEl.style.backgroundColor = "var(--border)";
-        }
-      });
-
-      // Actualizar contadores y etiquetas estáticas
-      document.getElementById("nav-counter").innerHTML = `<span style="color:${targetSlide.color}; font-weight:700;">${index + 1}</span><span style="color:var(--border);"> / </span>${SLIDES_DATA.length}`;
+      // Actualizar indicadores numéricos y textos en el DOM
+      document.getElementById("current-slide-num").innerText = String(index + 1).padStart(2, '0');
+      document.getElementById("total-slides-num").innerText = String(SLIDES_DATA.length).padStart(2, '0');
       document.getElementById("slide-label-center").innerText = targetSlide.label;
 
       // Deshabilitar botones si se llega a los extremos
@@ -1146,11 +1177,20 @@
         nextBtn.style.background = `linear-gradient(135deg, ${targetSlide.color}30, ${targetSlide.color}15)`;
         nextBtn.style.border = `1px solid ${targetSlide.color}`;
         nextBtn.style.color = targetSlide.color;
+      } else {
+        nextBtn.style.background = "var(--border)";
+        nextBtn.style.color = "var(--muted)";
+        nextBtn.style.border = "none";
       }
+      
       if(index !== 0) {
         prevBtn.style.background = "var(--card)";
         prevBtn.style.border = `1px solid ${targetSlide.color}50`;
         prevBtn.style.color = "var(--text)";
+      } else {
+        prevBtn.style.background = "var(--border)";
+        prevBtn.style.color = "var(--muted)";
+        prevBtn.style.border = "none";
       }
 
       // Reiniciar scroll al tope
@@ -1161,14 +1201,18 @@
       goToSlide(currentSlideIndex + direction);
     }
 
-    // Escuchador de teclado nativo
+    // Escuchador de teclado
     window.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowRight" || e.key === "ArrowDown") changeSlide(1);
-      if (e.key === "ArrowLeft" || e.key === "ArrowUp") changeSlide(-1);
+      if (e.key === "ArrowRight" || e.key === " ") {
+        e.preventDefault();
+        changeSlide(1);
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        changeSlide(-1);
+      }
     });
 
-    // Carga inicial
-    initNavigationUI();
-    goToSlide(0);
+    // CORRECCIÓN AQUÍ: Asignación correcta del evento onload sin ejecutar la función antes de tiempo
+    window.onload = renderSlides;
   </script>
 </body>
