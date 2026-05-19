@@ -1061,7 +1061,7 @@
   </div>
 
   <script>
-    // Listado de tus diapositivas reales basado en tu HTML
+// Listado de diapositivas alineado exactamente con tu estructura HTML original
     const SLIDES_DATA = [
       { id: "slide-0", label: "Introducción", color: "var(--blue)" },
       { id: "slide-1", label: "Definiciones", color: "var(--blue)" },
@@ -1069,46 +1069,50 @@
       { id: "slide-3", label: "Ciclo de Vida", color: "var(--green)" },
       { id: "slide-4", label: "Costos", color: "var(--amber)" },
       { id: "slide-5", label: "Mantenibilidad", color: "var(--coral)" },
-      { id: "slide-6", label: "Impacto e Infraestructura", color: "var(--emerald)" },
-      { id: "slide-7", label: "Prácticas Modernas", color: "var(--electric)" },
+      { id: "slide-6", label: "Impacto", color: "var(--emerald)" },
+      { id: "slide-7", label: "Prácticas", color: "var(--electric)" },
       { id: "slide-8", label: "Conclusión", color: "var(--red)" }
     ];
 
     let currentSlideIndex = 0;
 
-    // Inicializa el menú de arriba (Pills) y los puntitos de abajo (Dots)
+    // Inicializa el menú superior (Pills) y los puntitos inferiores (Dots)
     function initPresentation() {
       const pillsContainer = document.getElementById("pills-container");
       const dotsContainer = document.getElementById("dots-container");
       
-      pillsContainer.innerHTML = "";
-      dotsContainer.innerHTML = "";
+      if (pillsContainer) pillsContainer.innerHTML = "";
+      if (dotsContainer) dotsContainer.innerHTML = "";
 
       SLIDES_DATA.forEach((slide, index) => {
-        // Crear Botón del Menú Superior (Pills)
-        const pill = document.createElement("button");
-        pill.className = `pill-btn ${index === 0 ? 'active' : ''}`;
-        pill.id = `pill-${slide.id}`;
-        pill.innerText = `${String(index).padStart(2, '0')}. ${slide.label}`;
-        pill.onclick = () => goToSlide(index);
-        pillsContainer.appendChild(pill);
+        // Generar botones del menú superior (Pills)
+        if (pillsContainer) {
+          const pill = document.createElement("button");
+          pill.className = `pill-btn ${index === 0 ? 'active' : ''}`;
+          pill.id = `pill-${slide.id}`;
+          pill.innerText = `${String(index).padStart(2, '0')}. ${slide.label}`;
+          pill.onclick = () => goToSlide(index);
+          pillsContainer.appendChild(pill);
+        }
 
-        // Crear Puntito Inferior (Dots)
-        const dot = document.createElement("button");
-        dot.className = "dot-btn";
-        dot.id = `dot-${slide.id}`;
-        dot.onclick = () => goToSlide(index);
-        dotsContainer.appendChild(dot);
+        // Generar puntitos de abajo (Dots)
+        if (dotsContainer) {
+          const dot = document.createElement("button");
+          dot.className = `dot-btn ${index === 0 ? 'active' : ''}`;
+          dot.id = `dot-${slide.id}`;
+          dot.onclick = () => goToSlide(index);
+          dotsContainer.appendChild(dot);
+        }
       });
 
-      // Mostrar la primera diapositiva de entrada
+      // Mostrar la primera slide al cargar
       goToSlide(0);
     }
 
     function goToSlide(index) {
       if (index < 0 || index >= SLIDES_DATA.length) return;
 
-      // 1. Ocultar diapositiva anterior y mostrar la nueva
+      // 1. Alternar clases active en las diapositivas del HTML, pills y dots
       SLIDES_DATA.forEach((slide, idx) => {
         const slideEl = document.getElementById(slide.id);
         const pillEl = document.getElementById(`pill-${slide.id}`);
@@ -1118,18 +1122,19 @@
           if (slideEl) slideEl.classList.add("active");
           if (pillEl) pillEl.classList.add("active");
           
-          // Aplicar los colores dinámicos de tu paleta CSS
+          // Cambiar el color de acento de la app dinámicamente según la sección
           document.documentElement.style.setProperty('--accent', slide.color);
+          
           if (dotEl) {
+            dotEl.classList.add("active");
             dotEl.style.background = slide.color;
-            dotEl.style.width = "24px"; // Puntito alargado para el activo
           }
         } else {
           if (slideEl) slideEl.classList.remove("active");
           if (pillEl) pillEl.classList.remove("active");
           if (dotEl) {
-            dotEl.style.background = "var(--border)";
-            dotEl.style.width = "8px"; // Puntito normal
+            dotEl.classList.remove("active");
+            dotEl.style.background = ""; // Cae al color gris por defecto del CSS
           }
         }
       });
@@ -1137,40 +1142,36 @@
       currentSlideIndex = index;
       const targetSlide = SLIDES_DATA[index];
 
-      // 2. Actualizar textos de los contadores nativos de tu diseño
-      document.getElementById("nav-counter").innerText = `${index + 1} / ${SLIDES_DATA.length}`;
-      if (document.getElementById("slide-label-center")) {
-        document.getElementById("slide-label-center").innerText = targetSlide.label;
+      // 2. Actualizar el contador lateral (ej: "01 / 09")
+      const counterEl = document.getElementById("nav-counter");
+      if (counterEl) {
+        counterEl.innerText = `${String(index + 1).padStart(2, '0')} / ${String(SLIDES_DATA.length).padStart(2, '0')}`;
       }
 
-      // 3. Manejo de estados de tus botones Siguiente y Anterior (id="btn-prev" y id="btn-next")
+      // 3. Actualizar el texto del badge/indicador central inferior
+      const labelCenterEl = document.getElementById("slide-label-center");
+      if (labelCenterEl) {
+        labelCenterEl.innerText = targetSlide.label;
+      }
+
+      // 4. Controlar habilitación y estilos de los botones Siguiente/Anterior
       const prevBtn = document.getElementById("btn-prev");
       const nextBtn = document.getElementById("btn-next");
 
       if (prevBtn) {
         prevBtn.disabled = (index === 0);
-        if (index !== 0) {
-          prevBtn.style.background = "var(--card)";
-          prevBtn.style.border = `1px solid ${targetSlide.color}50`;
-          prevBtn.style.color = "var(--text)";
-        }
       }
-
       if (nextBtn) {
         nextBtn.disabled = (index === SLIDES_DATA.length - 1);
-        if (index !== SLIDES_DATA.length - 1) {
-          nextBtn.style.background = `linear-gradient(135deg, ${targetSlide.color}30, ${targetSlide.color}15)`;
-          nextBtn.style.border = `1px solid ${targetSlide.color}`;
-          nextBtn.style.color = targetSlide.color;
-        }
       }
 
-      // Auto-scrollear el menú de arriba si se pasa del ancho de pantalla
+      // Hacer scroll automático suave en el menú superior si queda oculto de la pantalla
       const activePill = document.getElementById(`pill-${targetSlide.id}`);
       if (activePill) {
         activePill.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
       }
 
+      // Volver arriba instantáneamente al cambiar de slide
       window.scrollTo({ top: 0, behavior: 'instant' });
     }
 
@@ -1178,7 +1179,7 @@
       goToSlide(currentSlideIndex + direction);
     }
 
-    // Escuchador de teclado nativo
+    // Navegación por teclado (Flechas y barra espaciadora)
     window.addEventListener("keydown", (e) => {
       if (e.key === "ArrowRight" || e.key === " ") {
         e.preventDefault();
@@ -1189,15 +1190,7 @@
       }
     });
 
-    // Vincular funciones globales a los botones que ya tenés declarados en el HTML
-    document.addEventListener("DOMContentLoaded", () => {
-      const prevBtn = document.getElementById("btn-prev");
-      const nextBtn = document.getElementById("btn-next");
-      
-      if (prevBtn) prevBtn.onclick = () => changeSlide(-1);
-      if (nextBtn) nextBtn.onclick = () => changeSlide(1);
-
-      initPresentation();
-    });
+    // Inicializar todo una vez que el HTML esté completamente cargado
+    window.onload = initPresentation;
   </script>
 </body>
