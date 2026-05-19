@@ -1061,139 +1061,116 @@
   </div>
 
   <script>
-    // Datos de las diapositivas (Llena este array con tu contenido)
+    // Listado de tus diapositivas reales basado en tu HTML
     const SLIDES_DATA = [
-      {
-        id: "slide-0",
-        title: "Ingeniería del Mantenimiento de Software",
-        subtitle: "Conceptos Fundamentales e Introducción",
-        label: "Introducción",
-        color: "var(--blue)",
-        content: `
-          <div class="card-grid">
-            <div class="card">
-              <h3>¿Qué es el Mantenimiento de Software?</h3>
-              <p>Es la modificación de un producto de software después de la entrega para corregir errores, mejorar el rendimiento u otros atributos.</p>
-            </div>
-            <div class="card">
-              <h3>Importancia</h3>
-              <p>Representa una de las fases más costosas y críticas del ciclo de vida del software, garantizando que el sistema siga siendo útil.</p>
-            </div>
-          </div>
-        `
-      },
-      {
-        id: "slide-1",
-        title: "Tipos de Mantenimiento",
-        subtitle: "Según la norma ISO/IEC 14764",
-        label: "Tipos",
-        color: "var(--violet)",
-        content: `
-          <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
-            <div class="card" style="border-top: 4px solid var(--red);">
-              <h3>Correctivo</h3>
-              <p>Reparar fallas detectadas por los usuarios.</p>
-            </div>
-            <div class="card" style="border-top: 4px solid var(--green);">
-              <h3>Adaptativo</h3>
-              <p>Modificar el software para que funcione en nuevos entornos.</p>
-            </div>
-            <div class="card" style="border-top: 4px solid var(--amber);">
-              <h3>Perfectivo</h3>
-              <p>Añadir nuevas funciones o mejorar la eficiencia.</p>
-            </div>
-            <div class="card" style="border-top: 4px solid var(--blue);">
-              <h3>Preventivo</h3>
-              <p>Prevenir problemas antes de que ocurran (Refactorización).</p>
-            </div>
-          </div>
-        `
-      }
+      { id: "slide-0", label: "Introducción", color: "var(--blue)" },
+      { id: "slide-1", label: "Definiciones", color: "var(--blue)" },
+      { id: "slide-2", label: "Taxonomía", color: "var(--violet)" },
+      { id: "slide-3", label: "Ciclo de Vida", color: "var(--green)" },
+      { id: "slide-4", label: "Costos", color: "var(--amber)" },
+      { id: "slide-5", label: "Mantenibilidad", color: "var(--coral)" },
+      { id: "slide-6", label: "Impacto e Infraestructura", color: "var(--emerald)" },
+      { id: "slide-7", label: "Prácticas Modernas", color: "var(--electric)" },
+      { id: "slide-8", label: "Conclusión", color: "var(--red)" }
     ];
 
     let currentSlideIndex = 0;
 
-    function renderSlides() {
-      const container = document.getElementById("slides-container");
-      container.innerHTML = ""; // Limpiar contenedor
-
-      if (SLIDES_DATA.length === 0) {
-        container.innerHTML = "<p style='color:var(--red); text-align:center;'>No hay diapositivas cargadas en SLIDES_DATA.</p>";
-        return;
-      }
+    // Inicializa el menú de arriba (Pills) y los puntitos de abajo (Dots)
+    function initPresentation() {
+      const pillsContainer = document.getElementById("pills-container");
+      const dotsContainer = document.getElementById("dots-container");
+      
+      pillsContainer.innerHTML = "";
+      dotsContainer.innerHTML = "";
 
       SLIDES_DATA.forEach((slide, index) => {
-        const slideEl = document.createElement("div");
-        slideEl.id = slide.id;
-        slideEl.className = `slide-content ${index === 0 ? 'active' : ''}`;
-        
-        slideEl.innerHTML = `
-          <div class="slide-header">
-            <span class="slide-badge" style="background: ${slide.color}20; color: ${slide.color}; border: 1px solid ${slide.color}40;">
-              ${slide.label}
-            </span>
-            <h1 class="slide-title">${slide.title}</h1>
-            <p class="slide-subtitle">${slide.subtitle}</p>
-          </div>
-          <div class="slide-body">
-            ${slide.content}
-          </div>
-        `;
-        
-        container.appendChild(slideEl);
+        // Crear Botón del Menú Superior (Pills)
+        const pill = document.createElement("button");
+        pill.className = `pill-btn ${index === 0 ? 'active' : ''}`;
+        pill.id = `pill-${slide.id}`;
+        pill.innerText = `${String(index).padStart(2, '0')}. ${slide.label}`;
+        pill.onclick = () => goToSlide(index);
+        pillsContainer.appendChild(pill);
+
+        // Crear Puntito Inferior (Dots)
+        const dot = document.createElement("button");
+        dot.className = "dot-btn";
+        dot.id = `dot-${slide.id}`;
+        dot.onclick = () => goToSlide(index);
+        dotsContainer.appendChild(dot);
       });
 
-      // Inicializar el estado de los controles superiores/inferiores
+      // Mostrar la primera diapositiva de entrada
       goToSlide(0);
     }
 
     function goToSlide(index) {
       if (index < 0 || index >= SLIDES_DATA.length) return;
 
-      // Desactivar diapositiva anterior
-      const currentSlide = document.querySelector(".slide-content.active");
-      if (currentSlide) currentSlide.classList.remove("active");
+      // 1. Ocultar diapositiva anterior y mostrar la nueva
+      SLIDES_DATA.forEach((slide, idx) => {
+        const slideEl = document.getElementById(slide.id);
+        const pillEl = document.getElementById(`pill-${slide.id}`);
+        const dotEl = document.getElementById(`dot-${slide.id}`);
 
-      // Activar nueva diapositiva
+        if (idx === index) {
+          if (slideEl) slideEl.classList.add("active");
+          if (pillEl) pillEl.classList.add("active");
+          
+          // Aplicar los colores dinámicos de tu paleta CSS
+          document.documentElement.style.setProperty('--accent', slide.color);
+          if (dotEl) {
+            dotEl.style.background = slide.color;
+            dotEl.style.width = "24px"; // Puntito alargado para el activo
+          }
+        } else {
+          if (slideEl) slideEl.classList.remove("active");
+          if (pillEl) pillEl.classList.remove("active");
+          if (dotEl) {
+            dotEl.style.background = "var(--border)";
+            dotEl.style.width = "8px"; // Puntito normal
+          }
+        }
+      });
+
       currentSlideIndex = index;
       const targetSlide = SLIDES_DATA[index];
-      const nextSlideEl = document.getElementById(targetSlide.id);
-      if (nextSlideEl) nextSlideEl.classList.add("active");
 
-      // Actualizar indicadores numéricos y textos en el DOM
-      document.getElementById("current-slide-num").innerText = String(index + 1).padStart(2, '0');
-      document.getElementById("total-slides-num").innerText = String(SLIDES_DATA.length).padStart(2, '0');
-      document.getElementById("slide-label-center").innerText = targetSlide.label;
+      // 2. Actualizar textos de los contadores nativos de tu diseño
+      document.getElementById("nav-counter").innerText = `${index + 1} / ${SLIDES_DATA.length}`;
+      if (document.getElementById("slide-label-center")) {
+        document.getElementById("slide-label-center").innerText = targetSlide.label;
+      }
 
-      // Deshabilitar botones si se llega a los extremos
-      document.getElementById("btn-prev").disabled = (index === 0);
-      document.getElementById("btn-next").disabled = (index === SLIDES_DATA.length - 1);
-
-      // Estilo dinámico a los botones de navegación inferior
-      const nextBtn = document.getElementById("btn-next");
+      // 3. Manejo de estados de tus botones Siguiente y Anterior (id="btn-prev" y id="btn-next")
       const prevBtn = document.getElementById("btn-prev");
-      
-      if(index !== SLIDES_DATA.length - 1) {
-        nextBtn.style.background = `linear-gradient(135deg, ${targetSlide.color}30, ${targetSlide.color}15)`;
-        nextBtn.style.border = `1px solid ${targetSlide.color}`;
-        nextBtn.style.color = targetSlide.color;
-      } else {
-        nextBtn.style.background = "var(--border)";
-        nextBtn.style.color = "var(--muted)";
-        nextBtn.style.border = "none";
-      }
-      
-      if(index !== 0) {
-        prevBtn.style.background = "var(--card)";
-        prevBtn.style.border = `1px solid ${targetSlide.color}50`;
-        prevBtn.style.color = "var(--text)";
-      } else {
-        prevBtn.style.background = "var(--border)";
-        prevBtn.style.color = "var(--muted)";
-        prevBtn.style.border = "none";
+      const nextBtn = document.getElementById("btn-next");
+
+      if (prevBtn) {
+        prevBtn.disabled = (index === 0);
+        if (index !== 0) {
+          prevBtn.style.background = "var(--card)";
+          prevBtn.style.border = `1px solid ${targetSlide.color}50`;
+          prevBtn.style.color = "var(--text)";
+        }
       }
 
-      // Reiniciar scroll al tope
+      if (nextBtn) {
+        nextBtn.disabled = (index === SLIDES_DATA.length - 1);
+        if (index !== SLIDES_DATA.length - 1) {
+          nextBtn.style.background = `linear-gradient(135deg, ${targetSlide.color}30, ${targetSlide.color}15)`;
+          nextBtn.style.border = `1px solid ${targetSlide.color}`;
+          nextBtn.style.color = targetSlide.color;
+        }
+      }
+
+      // Auto-scrollear el menú de arriba si se pasa del ancho de pantalla
+      const activePill = document.getElementById(`pill-${targetSlide.id}`);
+      if (activePill) {
+        activePill.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+
       window.scrollTo({ top: 0, behavior: 'instant' });
     }
 
@@ -1201,7 +1178,7 @@
       goToSlide(currentSlideIndex + direction);
     }
 
-    // Escuchador de teclado
+    // Escuchador de teclado nativo
     window.addEventListener("keydown", (e) => {
       if (e.key === "ArrowRight" || e.key === " ") {
         e.preventDefault();
@@ -1212,7 +1189,15 @@
       }
     });
 
-    // CORRECCIÓN AQUÍ: Asignación correcta del evento onload sin ejecutar la función antes de tiempo
-    window.onload = renderSlides;
+    // Vincular funciones globales a los botones que ya tenés declarados en el HTML
+    document.addEventListener("DOMContentLoaded", () => {
+      const prevBtn = document.getElementById("btn-prev");
+      const nextBtn = document.getElementById("btn-next");
+      
+      if (prevBtn) prevBtn.onclick = () => changeSlide(-1);
+      if (nextBtn) nextBtn.onclick = () => changeSlide(1);
+
+      initPresentation();
+    });
   </script>
 </body>
